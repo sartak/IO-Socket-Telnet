@@ -158,7 +158,7 @@ sub _telnet_complex_callback
 
 =head1 NAME
 
-IO::Socket::Telnet - Transparent telnet negotiation for IO::Socket::INET
+IO::Socket::Telnet - transparent telnet negotiation for IO::Socket::INET
 
 =head1 VERSION
 
