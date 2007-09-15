@@ -68,6 +68,10 @@ my %dispatch =
         return (undef, 'will')  if $c eq $WILL;
         return (undef, 'wont')  if $c eq $WONT;
         return (undef, 'sb')    if $c eq $SB;
+
+        # IAC followed by something that we don't know about yet
+        require Carp;
+        Carp::croak "Invalid telnet stream: ... IAC $c (chr ".chr($c).") ...";
     },
 
     do => sub
@@ -104,7 +108,7 @@ my %dispatch =
 
         # IAC followed by something other than IAC and SE.. what??
         require Carp;
-        Carp::croak "Invalid telnet stream: IAC SE ... IAC $c";
+        Carp::croak "Invalid telnet stream: IAC SE ... IAC $c (chr ".chr($c).") ...";
     },
 );
 
