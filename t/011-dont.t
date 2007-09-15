@@ -6,7 +6,7 @@ use IO::Socket::Telnet;
 
 my $IAC = chr(255);
 my $DONT = chr(254);
-my $ECHO = chr(3);
+my $ECHO = chr(1);
 
 my $socket = IO::Socket::Telnet->new();
 is($socket->_parse("$IAC$DONT$ECHO"), '', "IAC DONT ECHO returns no value");

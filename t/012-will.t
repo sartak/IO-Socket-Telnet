@@ -6,7 +6,7 @@ use IO::Socket::Telnet;
 
 my $IAC = chr(255);
 my $WILL = chr(251);
-my $ECHO = chr(3);
+my $ECHO = chr(1);
 
 my $socket = IO::Socket::Telnet->new();
 is($socket->_parse("$IAC$WILL$ECHO"), '', "IAC WILL ECHO returns no value");
