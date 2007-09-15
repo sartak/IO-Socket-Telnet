@@ -81,7 +81,8 @@ my %dispatch =
     {
         my ($self, $c) = @_;
         return (undef, 'sbiac') if $c eq $IAC;
-        return (undef, undef, $c);
+        ${*$self}{telnet_sb_buffer} .= $c;
+        return;
     },
 
     sbiac => sub
