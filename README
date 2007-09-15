@@ -1,6 +1,14 @@
 IO-Socket-Telnet 0.01
 
-IO::Socket::Telnet is
+Telnet is a simple protocol that sits on top of TCP/IP. It handles the
+negotiation of various options, both about the connection itself (ECHO)
+and the setup of both sides of the party (NAWS, TTYPE).
+
+This is a wrapper around IO::Socket::INET that both strips out the telnet
+escape sequences and lets you handle the negotiation in a high-level manner.
+
+The interface for defining callbacks is subject to change. It needs to be
+less manual.
 
 MAJOR CHANGES
     0.01: first version
