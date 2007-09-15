@@ -30,6 +30,26 @@ my $WONT = chr(252);
 my $DO = chr(253);
 my $DONT = chr(254);
 
+# this is a finite state machine. each state can:
+#     add some text to the output buffer
+#     change to a different state
+#     run other code (such as adding text to the subnegotiation buffer)
+
+# the states are:
+#     normal: every char is added to the output buffer, except IAC
+#     iac:    we've received an IAC, this is the start of a command
+#                 if we receive an IAC in state iac, append IAC to the output
+#                 buffer and switch back to normal mode (IAC IAC is like \\)
+#     do:     IAC DO OPTION: I want you to DO option
+#     dont:   IAC DONT OPTION: I want you to not do this option
+#     will:   IAC WILL OPTION: I WILL do this option (is this ok?)
+#     wont:   IAC WONT OPTION: I WONT do this option (is this ok?)
+#     sb:     IAC SB OPTION arbitrary text IAC SE
+#     sbiac:  IAC received during "arbitrary text" of sb if we receive an IAC
+#                 in this mode, append IAC to the subneg buffer and switch back
+#                 to sb mode. if we receive an SE (subneg-end) in this mode,
+#                 perform some kind of action and go back to normal mode
+
 my %dispatch =
 (
     normal => sub
@@ -67,6 +87,7 @@ my %dispatch =
     sbiac => sub
     {
         my ($self, $c) = @_;
+
         if ($c eq $IAC)
         {
             ${*$self}{telnet_sb_buffer} .= $IAC;
@@ -88,6 +109,7 @@ my %dispatch =
 
 $dispatch{dont} = $dispatch{will} = $dispatch{wont} = $dispatch{do};
 
+# this takes the input stream and jams it through the FSM
 sub _parse
 {
     my ($self, $in) = @_;
