@@ -163,7 +163,7 @@ IO::Socket::Telnet - Transparent telnet negotiation for IO::Socket::INET
 
 =head1 VERSION
 
-Version 0.01 released ???
+Version 0.01 released 15 Sep 07
 
 =cut
 
