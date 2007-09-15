@@ -7,8 +7,13 @@ and the setup of both sides of the party (NAWS, TTYPE).
 This is a wrapper around IO::Socket::INET that both strips out the telnet
 escape sequences and lets you handle the negotiation in a high-level manner.
 
-The interface for defining callbacks is subject to change. It needs to be
-less manual.
+There is currently no interface for defining callbacks. This will be rectified
+very soon. The module as it stands is still useful for stripping out telnet
+escape sequences.
+
+This module is likely missing large parts of the telnet spec. Please let me
+know if you need particular things implemented. Failing test cases are the
+best bug reports!
 
 MAJOR CHANGES
     0.01: first version
