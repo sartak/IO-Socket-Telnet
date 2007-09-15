@@ -122,7 +122,7 @@ sub _telnet_complex_callback
 
 =head1 NAME
 
-IO::Socket::Telnet - ???
+IO::Socket::Telnet - Transparent telnet negotiation for IO::Socket::INET
 
 =head1 VERSION
 
@@ -135,15 +135,42 @@ our $VERSION = '0.01';
 =head1 SYNOPSIS
 
     use IO::Socket::Telnet;
-    do_stuff();
+    my $socket = IO::Socket::Telnet->new(PeerAddr => 'random.server.org',
+                                         PeerPort => 23);
+    while (1) {
+        $socket->send(scalar <>);
+        defined $socket->recv(my $x, 4096) or die $!;
+    }
 
 =head1 DESCRIPTION
 
+Telnet is a simple protocol that sits on top of TCP/IP. It handles the
+negotiation of various options, both about the connection itself (ECHO)
+and the setup of both sides of the party (NAWS, TTYPE).
 
+This is a wrapper around L<IO::Socket::INET> that both strips out the telnet
+escape sequences and lets you handle the negotiation in a high-level manner.
+
+The interface for defining callbacks is subject to change. It needs to be
+less manual.
+
+=head1 CAVEATS
+
+You must use the C<< $socket->recv(...) >> method call form.
+C<recv($socket, ...)> will not invoke the necessary methods. You can use
+C<print $socket ...> because C<print> currently has no special semantics.
+
+=head1 SIMILAR MODULES
+
+L<Net::Telnet> has a similar purpose, to interact via telnet with someone else.
+The major difference is that L<Net::Telnet> tries to be L<Expect> to some
+degree as well. This is fine if that's what you need to do, but the author of
+L<IO::Socket::Telnet> wants to play NetHack on a remote server, and
+L<Net::Telnet> doesn't help him very much.
 
 =head1 SEE ALSO
 
-L<Foo::Bar>
+L<Net::Telnet>, L<IO::Socket::INET>, L<IO::Socket>, L<IO::Handle>
 
 =head1 AUTHOR
 
