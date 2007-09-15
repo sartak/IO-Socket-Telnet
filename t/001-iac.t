@@ -1,7 +1,7 @@
 #!perl -T
 use strict;
 use warnings;
-use Test::More tests => 6;
+use Test::More tests => 7;
 use IO::Socket::Telnet;
 
 my $IAC = chr(255);
@@ -13,6 +13,8 @@ is($socket->_parse($IAC.$IAC), $IAC, "IAC IAC means IAC to outhandle");
 
 is($socket->_parse($IAC), '', "single IAC does not have any output");
 is($socket->_parse($IAC), $IAC, "IAC / IAC broken across calls works");
+
+is($socket->_parse("world"), "world", "back in normal mode even after split IAC");
 
 ok(defined($socket->_parse($IAC)), "single IAC defined value");
 
