@@ -177,6 +177,7 @@ our $VERSION = '0.01';
     while (1) {
         $socket->send(scalar <>);
         defined $socket->recv(my $x, 4096) or die $!;
+        print $x;
     }
 
 =head1 DESCRIPTION
