@@ -1,8 +1,20 @@
 #!perl -T
 use strict;
 use warnings;
-use Test::More tests => 1;
+use Test::More tests => 6;
 use IO::Socket::Telnet;
 
-ok(1);
+my $IAC = chr(255);
+
+my $socket = IO::Socket::Telnet->new();
+is($socket->_parse("hello"), "hello", "no IAC means no telnet");
+
+is($socket->_parse($IAC.$IAC), $IAC, "IAC IAC means IAC to outhandle");
+
+is($socket->_parse($IAC), '', "single IAC does not have any output");
+is($socket->_parse($IAC), $IAC, "IAC / IAC broken across calls works");
+
+ok(defined($socket->_parse($IAC)), "single IAC defined value");
+
+is($socket->_parse("${IAC}hello$IAC${IAC}world"), "${IAC}hello${IAC}world", "IAC IAC inside a regular string works fine");
 
