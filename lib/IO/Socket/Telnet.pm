@@ -122,11 +122,12 @@ sub _parse
 
     # optimization: if we're in normal mode then we can quickly move all the
     # input up to the first IAC into the output buffer.
-    if ($dispatch{${*$self}{telnet_mode}} eq 'normal')
+    if (${*$self}{telnet_mode} eq 'normal')
     {
         # if there is no IAC then we can skip telnet entirely
-        $in =~ s/^(.*)$IAC//s or return $in;
-        $out .= $1;
+        $in =~ s/^([^$IAC]*)//;
+        return $1 if length $in == 0;
+        $out = $1;
     }
 
     C: for my $c (split '', $in)
