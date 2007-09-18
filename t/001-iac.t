@@ -1,7 +1,7 @@
 #!perl -T
 use strict;
 use warnings;
-use Test::More tests => 7;
+use Test::More tests => 8;
 use IO::Socket::Telnet;
 
 my $IAC = chr(255);
@@ -20,3 +20,4 @@ ok(defined($socket->_parse($IAC)), "single IAC defined value");
 
 is($socket->_parse("${IAC}hello$IAC${IAC}world"), "${IAC}hello${IAC}world", "IAC IAC inside a regular string works fine");
 
+is($socket->_parse("goodbye$IAC${IAC}world$IAC"), "goodbye${IAC}world", "IAC IAC inside a regular string works fine");
