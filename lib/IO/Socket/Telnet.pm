@@ -201,7 +201,7 @@ sub _parse
 # called when we get a full DO/DONT/WILL/WONT
 sub _telnet_simple_callback
 {
-    my ($self, $opt, $mode) = @_;
+    my ($self, $mode, $opt) = @_;
     my $response;
 
     if (${*$self}{telnet_simple_cb})
@@ -226,14 +226,14 @@ sub _telnet_simple_callback
         }
     }}
 
-    $response = $self->_reasonable_response($opt, $mode)
+    $response = $self->_reasonable_response($mode, $opt)
         if !defined($response);
     $self->send($response);
 }
 
 sub _reasonable_response
 {
-    my ($self, $opt, $mode) = @_;
+    my ($self, $mode, $opt) = @_;
 
        if ($mode eq $DO)   { return "$IAC$WONT$mode" }
     elsif ($mode eq $DONT) { return "$IAC$WONT$mode" }
