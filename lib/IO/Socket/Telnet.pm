@@ -395,13 +395,20 @@ You must use the C<< $socket->recv(...) >> method call form.
 C<recv($socket, ...)> will not invoke the necessary methods. You can use
 C<print $socket ...> because C<print> currently has no special semantics.
 
+This library does not yet attempt to "remember" negotiations. This means that
+if you connect with some other client that has the same limitation, you'll
+likely negotiate infinitely. Thankfully most people aren't terrible like I
+am. This limitation (endless negotiation, not people being good) will be
+fixed soon. Honest!
+
 =head1 SIMILAR MODULES
 
 L<Net::Telnet> has a similar purpose, to interact via telnet with someone else.
 The major difference is that L<Net::Telnet> tries to be L<Expect> to some
 degree as well. This is fine if that's what you need to do, but the author of
 L<IO::Socket::Telnet> wants to play NetHack on a remote server, and
-L<Net::Telnet> doesn't help him very much.
+L<Net::Telnet> doesn't help him very much. I think I have a better negotiation
+interface as well. :)
 
 =head1 SEE ALSO
 
