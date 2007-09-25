@@ -235,10 +235,10 @@ sub _reasonable_response
 {
     my ($self, $mode, $opt) = @_;
 
-       if ($mode eq $DO)   { return "$IAC$WONT$mode" }
-    elsif ($mode eq $DONT) { return "$IAC$WONT$mode" }
-    elsif ($mode eq $WILL) { return "$IAC$DONT$mode" }
-    elsif ($mode eq $WONT) { return "$IAC$DONT$mode" }
+       if ($mode eq $DO)   { return "$IAC$WONT$opt" }
+    elsif ($mode eq $DONT) { return "$IAC$WONT$opt" }
+    elsif ($mode eq $WILL) { return "$IAC$DONT$opt" }
+    elsif ($mode eq $WONT) { return "$IAC$DONT$opt" }
 
     return "";
 }
