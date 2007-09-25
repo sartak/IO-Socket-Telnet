@@ -218,6 +218,24 @@ sub _telnet_simple_callback
 
         last if !defined($response);
 
+        if ($response eq "0")
+        {
+            if ($mode eq $DONT) { $response = $IAC . $WILL . $opt }
+            if ($mode eq $DO)   { $response = $IAC . $WONT . $opt }
+            if ($mode eq $WILL) { $response = $IAC . $DONT . $opt }
+            if ($mode eq $WONT) { $response = $IAC . $DO   . $opt }
+            last;
+        }
+
+        if ($response eq "1")
+        {
+            if ($mode eq $DO)   { $response = $IAC . $WILL . $opt }
+            if ($mode eq $DONT) { $response = $IAC . $WONT . $opt }
+            if ($mode eq $WONT) { $response = $IAC . $DONT . $opt }
+            if ($mode eq $WILL) { $response = $IAC . $DO   . $opt }
+            last;
+        }
+
         my $r = $response;
         $r =~ s/'//g; # just in case they said "DON'T" or "WON'T"
 
