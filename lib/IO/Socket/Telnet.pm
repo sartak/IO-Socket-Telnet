@@ -192,7 +192,7 @@ sub _parse
         $out = $1;
     }
 
-    C: for my $c (split '', $in)
+    for my $c (split '', $in)
     {
         my ($o, $m)
             = $dispatch{${*$self}{telnet_mode}}
