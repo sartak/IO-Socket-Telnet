@@ -21,14 +21,73 @@ after recv => sub
     $_[1] = $_[0]->_parse($_[1]);
 };
 
-my $IAC = chr(255);
-my $SB = chr(250);
-my $SE = chr(240);
+sub telnet_simple_callback
+{
+    my $self = shift;
+    ${*$self}{telnet_simple_cb} = $_[0] if @_;
+    ${*$self}{telnet_simple_cb};
+}
 
-my $WILL = chr(251);
-my $WONT = chr(252);
-my $DO = chr(253);
-my $DONT = chr(254);
+sub telnet_complex_callback
+{
+    my $self = shift;
+    ${*$self}{telnet_complex_cb} = $_[0] if @_;
+    ${*$self}{telnet_complex_cb};
+}
+
+our @options = qw(BINARY ECHO RCP SGA NAMS STATUS TM RCTE NAOL NAOP NAOCRD
+                  NAOHTS NAOHTD NAOFFD NAOVTS NAOVTD NAOLFD XASCII LOGOUT BM DET
+                  SUPDUP SUPDUPOUTPUT SNDLOC TTYPE EOR TUID OUTMRK TTYLOC
+                  VT3270REGIME X3PAD NAWS TSPEED LFLOW LINEMODE XDISPLOC
+                  OLD_ENVIRON AUTHENTICATION ENCRYPT NEW_ENVIRON);
+
+our @meta;
+
+my $IAC  = chr(255); $meta[255] = 'IAC';
+my $SB   = chr(250); $meta[250] = 'SB';
+my $SE   = chr(240); $meta[240] = 'SE';
+
+my $WILL = chr(251); $meta[251] = 'WILL';
+my $WONT = chr(252); $meta[252] = 'WONT';
+my $DO   = chr(253); $meta[253] = 'DO';
+my $DONT = chr(254); $meta[254] = 'DONT';
+
+our %options;
+our %meta;
+
+{
+    no warnings 'uninitialized';
+    @options{ @options } = 0 .. @options;
+    @meta{ @meta }       = 0 .. @meta;
+}
+
+sub will
+{
+    my ($self, $opt) = @_;
+    if (exists $options{$opt}) { $opt = $options{$opt} }
+    $self->send($IAC . $WILL . $opt);
+}
+
+sub wont
+{
+    my ($self, $opt) = @_;
+    if (exists $options{$opt}) { $opt = $options{$opt} }
+    $self->send($IAC . $WONT . $opt);
+}
+
+sub do
+{
+    my ($self, $opt) = @_;
+    if (exists $options{$opt}) { $opt = $options{$opt} }
+    $self->send($IAC . $DO . $opt);
+}
+
+sub dont
+{
+    my ($self, $opt) = @_;
+    if (exists $options{$opt}) { $opt = $options{$opt} }
+    $self->send($IAC . $DONT . $opt);
+}
 
 # this is a finite state machine. each state can:
 #     add some text to the output buffer
@@ -143,11 +202,49 @@ sub _parse
     return $out;
 }
 
+# called when we get a full DO/DONT/WILL/WONT
 sub _telnet_simple_callback
 {
-    my ($self, $char, $mode) = @_;
-    ${*$self}{telnet_simple_cb} or return;
-    ${*$self}{telnet_simple_cb}->($self, $char, $mode);
+    my ($self, $opt, $mode) = @_;
+    my $response;
+
+    if (${*$self}{telnet_simple_cb})
+    {{
+        my $wopt = ord $opt;
+        $wopt = $options[$wopt] || $wopt;
+
+        my $wmode = ord $mode;
+        $wmode = $meta[$wmode] || $wmode;
+
+        $response = ${*$self}{telnet_simple_cb}->($self, "$wmode $wopt");
+
+        last if !defined($response);
+
+        my $r = $response;
+        $r =~ s/'//g; # just in case they said "DON'T" or "WON'T"
+
+        if ($r eq 'DO' || $r eq 'DONT' || $r eq 'WILL' || $r eq 'WONT')
+        {
+            $r = chr($meta{$r});
+            $response = $IAC . $r . $opt;
+        }
+    }}
+
+    $response = $self->_reasonable_response($opt, $mode)
+        if !defined($response);
+    $self->send($response);
+}
+
+sub _reasonable_response
+{
+    my ($self, $opt, $mode) = @_;
+
+       if ($mode eq $DO)   { return "$IAC$WONT$mode" }
+    elsif ($mode eq $DONT) { return "$IAC$WONT$mode" }
+    elsif ($mode eq $WILL) { return "$IAC$DONT$mode" }
+    elsif ($mode eq $WONT) { return "$IAC$DONT$mode" }
+
+    return "";
 }
 
 sub _telnet_complex_callback

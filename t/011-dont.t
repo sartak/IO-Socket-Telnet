@@ -3,6 +3,7 @@ use strict;
 use warnings;
 use Test::More tests => 6;
 use IO::Socket::Telnet;
+{ no warnings 'once'; *IO::Socket::Telnet::send = sub { } }
 
 my $IAC = chr(255);
 my $DONT = chr(254);
