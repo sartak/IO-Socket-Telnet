@@ -115,32 +115,28 @@ my %dispatch =
     {
         my ($self, $c) = @_;
         return $c unless $c eq $IAC;
-        return (undef, 'iac');
+        return (undef, $IAC);
     },
 
-    iac => sub
+    $IAC => sub
     {
         my ($self, $c) = @_;
         return ($IAC, 'normal') if $c eq $IAC;
-        return (undef, 'do')    if $c eq $DO;
-        return (undef, 'dont')  if $c eq $DONT;
-        return (undef, 'will')  if $c eq $WILL;
-        return (undef, 'wont')  if $c eq $WONT;
-        return (undef, 'sb')    if $c eq $SB;
+        return (undef, $c) if $c eq $DO || $c eq $DONT || $c eq $WILL || $c eq $WONT || $c eq $SB;
 
         # IAC followed by something that we don't know about yet
         require Carp;
         Carp::croak "Invalid telnet stream: ... IAC $c (chr ".chr($c).") ...";
     },
 
-    do => sub
+    $DO => sub
     {
         my ($self, $c, $m) = @_;
         $self->_telnet_simple_callback($m, $c);
         return (undef, 'normal');
     },
 
-    sb => sub
+    $SB => sub
     {
         my ($self, $c) = @_;
         return (undef, 'sbiac') if $c eq $IAC;
@@ -155,7 +151,7 @@ my %dispatch =
         if ($c eq $IAC)
         {
             ${*$self}{telnet_sb_buffer} .= $IAC;
-            return (undef, 'sb');
+            return (undef, $SB);
         }
 
         if ($c eq $SE)
@@ -171,7 +167,7 @@ my %dispatch =
     },
 );
 
-$dispatch{dont} = $dispatch{will} = $dispatch{wont} = $dispatch{do};
+$dispatch{$DONT} = $dispatch{$WILL} = $dispatch{$WONT} = $dispatch{$DO};
 
 # this takes the input stream and jams it through the FSM
 sub _parse
