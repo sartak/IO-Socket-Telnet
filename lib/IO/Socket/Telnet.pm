@@ -122,7 +122,9 @@ my %dispatch =
     {
         my ($self, $c) = @_;
         return ($IAC, 'normal') if $c eq $IAC;
-        return (undef, $c) if $c eq $DO || $c eq $DONT || $c eq $WILL || $c eq $WONT || $c eq $SB;
+        return (undef, $c) if $c eq $DO || $c eq $DONT
+                           || $c eq $WILL || $c eq $WONT
+                           || $c eq $SB;
 
         # IAC followed by something that we don't know about yet
         require Carp;
