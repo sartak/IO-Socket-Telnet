@@ -16,6 +16,7 @@ know if you need particular things implemented. Failing test cases are the
 best bug reports!
 
 MAJOR CHANGES
+    0.02: negotiation gets better hooks
     0.01: first version
 
 INSTALLATION
