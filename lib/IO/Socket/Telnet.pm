@@ -292,6 +292,85 @@ This module is likely missing large parts of the telnet spec. Please let me
 know if you need particular things implemented. Failing test cases are the
 best bug reports!
 
+=head1 NEGOTIATION
+
+Negotiation in L<IO::Socket::Telnet> is achieved in two ways. By responding to
+callbacks and by initiating it yourself.
+
+=head2 PASSIVE NEGOTATION
+
+There are two types of callback: one for the simple IAC <DO|DONT|WILL|WONT> <option> negotiation, and the other for the more complicated IAC SB <stuff> IAC SE.
+
+=head3 SIMPLE CALLBACK
+
+You can define a simple callback by using
+
+    $socket->telnet_simple_callback(\&your_callback);
+
+The callback receives two arguments: the socket itself and a human-readable
+version of the option that is being negotiated. For example, if the server
+sends "IAC DO ECHO", then the second option will be "DO ECHO". This aims to
+facilitate the use of regular expressions on the options. If the telnet library
+doesn't know the name of the particular option being negotiated, it will return
+its character number instead. Only the first 50 or so characters are assigned
+meaning in the telnet spec, so if the server sends "IAC WILL chr(63)" then your
+callback will receive "WILL 63" as its argument.
+
+The callback can return a few different values:
+
+=over 4
+
+=item One of: "DO", "DONT", "WILL", "WONT"
+
+These will be interpreted as responding to the other server. They will be
+packaged into the regular telnet escape codes for you.
+
+=item 0 or 1
+
+These correspond with "DO", "DONT", "WILL", and "WONT" in the obvious way. Zero
+will return the negation of the input (so WILL generates DONT, WONT generates
+DO, etc). One returns the affirmative of the input (so WILL generates DO, WONT
+generates DONT, etc).
+
+=item C<undef>
+
+A return value of C<undef> will be interpreted by C<IO::Socket::Telnet> as "do
+the best you can". Generally this is equivalent to returning "DONT" or "WONT"
+to everything but it may change in the future. This is also the default when no
+callback it set.
+
+=item The empty string
+
+The empty string will be interpreted as "do not respond to this negotiation."
+(Yes, all three canonical false values have different meanings!)
+
+=item Anything else
+
+Any other return value is sent straight across the socket. This assumes you
+know what you're doing. Perhaps working around the limitations/ignorance of
+this module? :)
+
+=back
+
+=head3 COMPLEX CALLBACK
+
+The complex callback is not specced yet. Right now you receive the raw
+subnegotiation buffer (if this means nothing to you, then run. RUN!) but there
+are plans to prettify this input when able. For example, NAWS (negotiate about
+window size) will probably just hand you the dimensions ($X, $Y) instead of
+chr($X).chr(0).chr($Y).chr(0).
+
+=head2 ACTIVE NEGOTIATION
+
+The four basic option types (DO, DONT, WILL, WONT) each have individual methods
+(both lowercase and uppercase form). They each take one argument: either the
+name of the option ('ECHO'), or the character code of the option (chr(1) for
+ECHO).
+
+There is currently no "easy" way to send complex negotiation. This will be
+rectified soon. At the very least I want a method that lets you wrap an
+arbitrary subnegotiation and have it be escaped and packaged correctly.
+
 =head1 CAVEATS
 
 You must use the C<< $socket->recv(...) >> method call form.
