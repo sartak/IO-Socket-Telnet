@@ -89,6 +89,11 @@ sub dont
     $self->send($IAC . $DONT . $opt);
 }
 
+*WILL = \&will;
+*WONT = \&wont;
+*DO   = \&do;
+*DONT = \&dont;
+
 # this is a finite state machine. each state can:
 #     add some text to the output buffer
 #     change to a different state
