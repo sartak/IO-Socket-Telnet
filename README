@@ -1,4 +1,4 @@
-IO-Socket-Telnet 0.01
+IO-Socket-Telnet 0.02
 
 Telnet is a simple protocol that sits on top of TCP/IP. It handles the
 negotiation of various options, both about the connection itself (ECHO)
