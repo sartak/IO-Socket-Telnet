@@ -297,8 +297,7 @@ our $VERSION = '0.01';
 =head1 SYNOPSIS
 
     use IO::Socket::Telnet;
-    my $socket = IO::Socket::Telnet->new(PeerAddr => 'random.server.org',
-                                         PeerPort => 23);
+    my $socket = IO::Socket::Telnet->new(PeerAddr => 'random.server.org');
     while (1) {
         $socket->send(scalar <>);
         defined $socket->recv(my $x, 4096) or die $!;
