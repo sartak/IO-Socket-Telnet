@@ -288,7 +288,7 @@ IO::Socket::Telnet - transparent telnet negotiation for IO::Socket::INET
 
 =head1 VERSION
 
-Version 0.02 released ???
+Version 0.02 released 04 Nov 07
 
 =cut
 
