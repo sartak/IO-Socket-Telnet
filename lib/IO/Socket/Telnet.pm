@@ -8,7 +8,14 @@ use Class::Method::Modifiers;
 around new => sub
 {
     my $orig = shift;
-    my $self = $orig->(@_);
+    my $class = shift;
+    my %args = @_;
+
+    $args{PeerPort} ||= 23
+        if exists $args{PeerAddr}
+        || exists $args{PeerHost};
+
+    my $self = $class->$orig(%args);
 
     ${*$self}{telnet_mode} = 'normal';
     ${*$self}{telnet_sb_buffer} = '';
