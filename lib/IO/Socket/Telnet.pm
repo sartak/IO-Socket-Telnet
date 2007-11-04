@@ -16,6 +16,7 @@ around new => sub
         || exists $args{PeerHost};
 
     my $self = $class->$orig(%args);
+    return undef if !defined($self);
 
     ${*$self}{telnet_mode} = 'normal';
     ${*$self}{telnet_sb_buffer} = '';

@@ -1,6 +1,7 @@
 Revision history for IO-Socket-Telnet
 
 0.03
+        Propagate socket creation failure properly
 
 0.02    Sun Nov 04 02:09:56 2007
         Support for simple callbacks
