@@ -171,7 +171,7 @@ my %dispatch =
 
         if ($c eq $SE)
         {
-            $self->_telnet_complex_callback();
+            $self->_telnet_complex_callback(${*$self}{telnet_sb_buffer});
             ${*$self}{telnet_sb_buffer} = '';
             return (undef, 'normal');
         }
