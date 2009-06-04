@@ -2,12 +2,10 @@ package IO::Socket::Telnet;
 use strict;
 use warnings;
 use base 'IO::Socket::INET';
-use Class::Method::Modifiers;
 
 our $VERSION = '0.03';
 
-around new => sub {
-    my $orig = shift;
+sub new {
     my $class = shift;
     my %args = @_;
 
@@ -15,17 +13,20 @@ around new => sub {
         if exists $args{PeerAddr}
         || exists $args{PeerHost};
 
-    my $self = $class->$orig(%args);
+    my $self = $class->SUPER::new(%args);
     return undef if !defined($self);
 
     ${*$self}{telnet_mode} = 'normal';
     ${*$self}{telnet_sb_buffer} = '';
 
     return $self;
-};
+}
 
-after recv => sub {
-    $_[1] = $_[0]->_parse($_[1]);
+sub recv {
+    my $self = shift;
+
+    $self->SUPER::recv(@_);
+    $_[0] = $self->_parse($_[0]);
 };
 
 sub telnet_simple_callback {
