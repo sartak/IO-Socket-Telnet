@@ -4,8 +4,7 @@ use warnings;
 use base 'IO::Socket::INET';
 use Class::Method::Modifiers;
 
-around new => sub
-{
+around new => sub {
     my $orig = shift;
     my $class = shift;
     my %args = @_;
@@ -23,30 +22,28 @@ around new => sub
     return $self;
 };
 
-after recv => sub
-{
+after recv => sub {
     $_[1] = $_[0]->_parse($_[1]);
 };
 
-sub telnet_simple_callback
-{
+sub telnet_simple_callback {
     my $self = shift;
     ${*$self}{telnet_simple_cb} = $_[0] if @_;
     ${*$self}{telnet_simple_cb};
 }
 
-sub telnet_complex_callback
-{
+sub telnet_complex_callback {
     my $self = shift;
     ${*$self}{telnet_complex_cb} = $_[0] if @_;
     ${*$self}{telnet_complex_cb};
 }
 
-our @options = qw(BINARY ECHO RCP SGA NAMS STATUS TM RCTE NAOL NAOP NAOCRD
-                  NAOHTS NAOHTD NAOFFD NAOVTS NAOVTD NAOLFD XASCII LOGOUT BM DET
-                  SUPDUP SUPDUPOUTPUT SNDLOC TTYPE EOR TUID OUTMRK TTYLOC
-                  VT3270REGIME X3PAD NAWS TSPEED LFLOW LINEMODE XDISPLOC
-                  OLD_ENVIRON AUTHENTICATION ENCRYPT NEW_ENVIRON);
+our @options = qw(
+    BINARY ECHO RCP SGA NAMS STATUS TM RCTE NAOL NAOP NAOCRD NAOHTS NAOHTD
+    NAOFFD NAOVTS NAOVTD NAOLFD XASCII LOGOUT BM DET SUPDUP SUPDUPOUTPUT SNDLOC
+    TTYPE EOR TUID OUTMRK TTYLOC VT3270REGIME X3PAD NAWS TSPEED LFLOW LINEMODE
+    XDISPLOC OLD_ENVIRON AUTHENTICATION ENCRYPT NEW_ENVIRON
+);
 
 our @meta;
 
@@ -68,31 +65,36 @@ our %meta;
     @meta{ @meta }       = 0 .. @meta;
 }
 
-sub will
-{
+sub will {
     my ($self, $opt) = @_;
-    if (exists $options{$opt}) { $opt = $options{$opt} }
+    if (exists $options{$opt}) {
+        $opt = $options{$opt};
+    }
     $self->send($IAC . $WILL . $opt);
 }
 
-sub wont
-{
+sub wont {
     my ($self, $opt) = @_;
-    if (exists $options{$opt}) { $opt = $options{$opt} }
+    if (exists $options{$opt}) {
+        $opt = $options{$opt};
+    }
     $self->send($IAC . $WONT . $opt);
 }
 
-sub do
-{
+sub do {
     my ($self, $opt) = @_;
-    if (exists $options{$opt}) { $opt = $options{$opt} }
+    if (exists $options{$opt}) {
+        $opt = $options{$opt};
+    }
     $self->send($IAC . $DO . $opt);
 }
 
 sub dont
 {
     my ($self, $opt) = @_;
-    if (exists $options{$opt}) { $opt = $options{$opt} }
+    if (exists $options{$opt}) {
+        $opt = $options{$opt};
+    }
     $self->send($IAC . $DONT . $opt);
 }
 
@@ -121,17 +123,14 @@ sub dont
 #                 to sb mode. if we receive an SE (subneg-end) in this mode,
 #                 perform some kind of action and go back to normal mode
 
-my %dispatch =
-(
-    normal => sub
-    {
+my %dispatch = (
+    normal => sub {
         my ($self, $c) = @_;
         return $c unless $c eq $IAC;
         return (undef, $IAC);
     },
 
-    $IAC => sub
-    {
+    $IAC => sub {
         my ($self, $c) = @_;
         return ($IAC, 'normal') if $c eq $IAC;
         return (undef, $c) if $c eq $DO || $c eq $DONT
@@ -143,33 +142,28 @@ my %dispatch =
         Carp::croak "Invalid telnet stream: ... IAC $c (chr ".chr($c).") ...";
     },
 
-    $DO => sub
-    {
+    $DO => sub {
         my ($self, $c, $m) = @_;
         $self->_telnet_simple_callback($m, $c);
         return (undef, 'normal');
     },
 
-    $SB => sub
-    {
+    $SB => sub {
         my ($self, $c) = @_;
         return (undef, 'sbiac') if $c eq $IAC;
         ${*$self}{telnet_sb_buffer} .= $c;
         return;
     },
 
-    sbiac => sub
-    {
+    sbiac => sub {
         my ($self, $c) = @_;
 
-        if ($c eq $IAC)
-        {
+        if ($c eq $IAC) {
             ${*$self}{telnet_sb_buffer} .= $IAC;
             return (undef, $SB);
         }
 
-        if ($c eq $SE)
-        {
+        if ($c eq $SE) {
             $self->_telnet_complex_callback(${*$self}{telnet_sb_buffer});
             ${*$self}{telnet_sb_buffer} = '';
             return (undef, 'normal');
@@ -184,23 +178,20 @@ my %dispatch =
 $dispatch{$DONT} = $dispatch{$WILL} = $dispatch{$WONT} = $dispatch{$DO};
 
 # this takes the input stream and jams it through the FSM
-sub _parse
-{
+sub _parse {
     my ($self, $in) = @_;
     my $out = '';
 
     # optimization: if we're in normal mode then we can quickly move all the
     # input up to the first IAC into the output buffer.
-    if (${*$self}{telnet_mode} eq 'normal')
-    {
+    if (${*$self}{telnet_mode} eq 'normal') {
         # if there is no IAC then we can skip telnet entirely
         $in =~ s/^([^$IAC]*)//o;
         return $1 if length $in == 0;
         $out = $1;
     }
 
-    for my $c (split '', $in)
-    {
+    for my $c (split '', $in) {
         my ($o, $m)
             = $dispatch{${*$self}{telnet_mode}}
                 ->($self, $c, ${*$self}{telnet_mode});
@@ -213,53 +204,51 @@ sub _parse
 }
 
 # called when we get a full DO/DONT/WILL/WONT
-sub _telnet_simple_callback
-{
+sub _telnet_simple_callback {
     my ($self, $mode, $opt) = @_;
     my $response;
 
-    if (${*$self}{telnet_simple_cb})
-    {{
-        my $wopt = ord $opt;
-        $wopt = $options[$wopt] || $wopt;
-
-        my $wmode = ord $mode;
-        $wmode = $meta[$wmode] || $wmode;
-
-        $response = ${*$self}{telnet_simple_cb}->($self, "$wmode $wopt");
-
-        last if !defined($response);
-
-        if ($response eq "0")
+    if (${*$self}{telnet_simple_cb}) {
         {
-            if ($mode eq $DONT) { $response = $IAC . $WILL . $opt }
-            if ($mode eq $DO)   { $response = $IAC . $WONT . $opt }
-            if ($mode eq $WILL) { $response = $IAC . $DONT . $opt }
-            if ($mode eq $WONT) { $response = $IAC . $DO   . $opt }
-            last;
-        }
+            my $wopt = ord $opt;
+            $wopt = $options[$wopt] || $wopt;
 
-        if ($response eq "1")
-        {
-            if ($mode eq $DO)   { $response = $IAC . $WILL . $opt }
-            if ($mode eq $DONT) { $response = $IAC . $WONT . $opt }
-            if ($mode eq $WONT) { $response = $IAC . $DONT . $opt }
-            if ($mode eq $WILL) { $response = $IAC . $DO   . $opt }
-            last;
-        }
+            my $wmode = ord $mode;
+            $wmode = $meta[$wmode] || $wmode;
 
-        my $r = $response;
-        $r =~ s/'//g; # just in case they said "DON'T" or "WON'T"
+            $response = ${*$self}{telnet_simple_cb}->($self, "$wmode $wopt");
 
-        if ($r eq 'DO' || $r eq 'DONT' || $r eq 'WILL' || $r eq 'WONT')
-        {
-            $r = chr($meta{$r});
-            $response = $IAC . $r . $opt;
+            last if !defined($response);
+
+            if ($response eq "0") {
+                if ($mode eq $DONT) { $response = $IAC . $WILL . $opt }
+                if ($mode eq $DO)   { $response = $IAC . $WONT . $opt }
+                if ($mode eq $WILL) { $response = $IAC . $DONT . $opt }
+                if ($mode eq $WONT) { $response = $IAC . $DO   . $opt }
+                last;
+            }
+
+            if ($response eq "1") {
+                if ($mode eq $DO)   { $response = $IAC . $WILL . $opt }
+                if ($mode eq $DONT) { $response = $IAC . $WONT . $opt }
+                if ($mode eq $WONT) { $response = $IAC . $DONT . $opt }
+                if ($mode eq $WILL) { $response = $IAC . $DO   . $opt }
+                last;
+            }
+
+            my $r = $response;
+            $r =~ s/'//g; # just in case they said "DON'T" or "WON'T"
+
+            if ($r eq 'DO' || $r eq 'DONT' || $r eq 'WILL' || $r eq 'WONT') {
+                $r = chr($meta{$r});
+                $response = $IAC . $r . $opt;
+            }
         }
-    }}
+    }
 
     $response = $self->_reasonable_response($mode, $opt)
         if !defined($response);
+
     $self->send($response);
 }
 
@@ -275,8 +264,7 @@ sub _reasonable_response
     return "";
 }
 
-sub _telnet_complex_callback
-{
+sub _telnet_complex_callback {
     my ($self, $sb) = @_;
     ${*$self}{telnet_complex_cb} or return;
     ${*$self}{telnet_complex_cb}->($self, $sb);
