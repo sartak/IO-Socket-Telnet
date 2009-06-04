@@ -313,7 +313,9 @@ callbacks and by initiating it yourself.
 
 =head2 PASSIVE NEGOTATION
 
-There are two types of callback: one for the simple IAC <DO|DONT|WILL|WONT> <option> negotiation, and the other for the more complicated IAC SB <stuff> IAC SE.
+There are two types of callback: one for the simple IAC <DO|DONT|WILL|WONT>
+<option> negotiation, and the other for the more complicated IAC SB <stuff> IAC
+SE.
 
 =head3 SIMPLE CALLBACK
 
