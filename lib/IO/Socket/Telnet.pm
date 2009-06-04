@@ -2,7 +2,7 @@
 package IO::Socket::Telnet;
 use strict;
 use warnings;
-use parent 'IO::Socket::INET';
+use base 'IO::Socket::INET';
 use Class::Method::Modifiers;
 
 around new => sub
