@@ -1,4 +1,3 @@
-#!perl
 package IO::Socket::Telnet;
 use strict;
 use warnings;
