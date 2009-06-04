@@ -412,7 +412,7 @@ L<Net::Telnet>, L<IO::Socket::INET>, L<IO::Socket>, L<IO::Handle>
 
 =head1 AUTHOR
 
-Shawn M Moore, C<< <sartak at gmail.com> >>
+Shawn M Moore, C<sartak@gmail.com>
 
 =head1 COPYRIGHT AND LICENSE
 
