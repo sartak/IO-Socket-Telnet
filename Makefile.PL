@@ -5,10 +5,6 @@ use inc::Module::Install;
 name           'IO-Socket-Telnet';
 all_from       'lib/IO/Socket/Telnet.pm';
 
-requires       'IO::Socket::INET';
-
-build_requires 'Test::More';
-
 auto_install;
 WriteAll;
 
