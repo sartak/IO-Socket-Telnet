@@ -4,9 +4,8 @@ MANIFEST.bak
 META.yml
 Makefile
 Makefile.old
-Makefile.old
 SIGNATURE
 blib/
 inc/
 pm_to_blib
-pm_to_blib
+IO-Socket-Telnet-*
