@@ -6,8 +6,7 @@ use IO::Socket::Telnet;
 my @sent;
 {
     no warnings 'once';
-    *IO::Socket::Telnet::send = sub
-    {
+    *IO::Socket::Telnet::send = sub {
         my ($self, $text) = @_;
         push @sent, $text;
     };
