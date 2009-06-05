@@ -92,8 +92,7 @@ sub do {
     $self->send($IAC . $DO . $opt);
 }
 
-sub dont
-{
+sub dont {
     my ($self, $opt) = @_;
     if (exists $options{$opt}) {
         $opt = $options{$opt};
@@ -255,8 +254,7 @@ sub _telnet_simple_callback {
     $self->send($response);
 }
 
-sub _reasonable_response
-{
+sub _reasonable_response {
     my ($self, $mode, $opt) = @_;
 
        if ($mode eq $DO)   { return "$IAC$WONT$opt" }
