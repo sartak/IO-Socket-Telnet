@@ -1,6 +1,7 @@
 Revision history for IO-Socket-Telnet
 
-0.04
+0.04    Thu Aug 19 17:28:27 2010
+        Add missing 1; reported by Peter Markmann
 
 0.03    Thu Jun 04 04:44:27 2009
         Propagate socket creation failure properly

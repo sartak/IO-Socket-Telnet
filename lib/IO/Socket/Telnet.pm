@@ -271,6 +271,8 @@ sub _telnet_complex_callback {
     ${*$self}{telnet_complex_cb}->($self, $sb);
 }
 
+1;
+
 __END__
 
 =head1 NAME
